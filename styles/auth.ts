@@ -24,8 +24,8 @@ export const authStyles = StyleSheet.create({
     marginBottom: spacing.xxl
   },
   logo: {
-    width: 200,
-    height: 60,
+    width: 350,
+    height: 105,
   },
   logoText: {
     fontSize: typography.logo.primary.fontSize,

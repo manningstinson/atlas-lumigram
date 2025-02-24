@@ -3,7 +3,7 @@ export const colors = {
   // Auth colors
   authBackground: '#010326',    // Dark navy blue
   authText: '#ffffff',          // White text for auth screens
-  accent: '#4fd1c5',            // Teal accent color
+  accent: '#23D9A5',            // Teal accent color
   
   // General colors
   white: '#ffffff',
