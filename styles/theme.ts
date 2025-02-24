@@ -1,10 +1,11 @@
 // styles/theme.ts
+import { Platform, StatusBar, Dimensions } from 'react-native';
+
 export const colors = {
   // Auth colors
-  authBackground: '#010326',    // Dark navy blue
-  authText: '#ffffff',          // White text for auth screens
-  accent: '#23D9A5',            // Teal accent color
-  
+  authBackground: '#010326', // Dark navy blue
+  authText: '#ffffff', // White text for auth screens
+  accent: '#23D9A5', // Teal accent color
   // General colors
   white: '#ffffff',
   black: '#000000',
@@ -13,10 +14,9 @@ export const colors = {
   mediumGray: '#999999',
   darkGray: '#555555',
   transparent: 'transparent',
-  
   // Functional colors
-  inputBorder: 'rgba(79, 209, 197, 0.5)',    // 50% transparent teal
-  buttonBorder: 'rgba(255, 255, 255, 0.25)'  // 25% transparent white
+  inputBorder: 'rgba(79, 209, 197, 0.5)', // 50% transparent teal
+  buttonBorder: 'rgba(255, 255, 255, 0.25)' // 25% transparent white
 };
 
 export const spacing = {
@@ -62,7 +62,64 @@ export const typography = {
 };
 
 export const layout = {
+  // Existing layout properties
   inputHeight: 56,
   buttonHeight: 56,
-  borderRadius: 8
+  borderRadius: 8,
+  
+  // Safe area and screen-related properties
+  safeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' 
+      ? StatusBar.currentHeight 
+      : 0,
+  },
+  
+  // Consistent container styles
+  container: {
+    flex: 1,
+    paddingHorizontal: spacing.m,
+    backgroundColor: colors.white,
+  },
+  
+  // Screen dimensions
+  screenWidth: Dimensions.get('window').width,
+  screenHeight: Dimensions.get('window').height,
+  
+  // Image styles for posts
+  postImage: {
+    container: {
+      paddingHorizontal: spacing.m,
+      paddingTop: spacing.m,
+      paddingBottom: spacing.m,
+    },
+    image: {
+      width: '100%',
+      height: 300, // Adjust as needed
+      borderRadius: 8,
+    },
+  },
+  
+  // Post item container style
+  postItem: {
+    marginBottom: spacing.m,
+    backgroundColor: colors.white,
+    borderRadius: 8,
+  },
+  
+  // Image styles
+  image: {
+    width: '100%',
+    borderRadius: 8,
+    marginBottom: spacing.m,
+  },
+  
+  // Header styles
+  header: {
+    fontSize: typography.heading.fontSize,
+    fontWeight: typography.heading.fontWeight,
+    marginBottom: spacing.m,
+    marginTop: spacing.m,
+    color: colors.black,
+  }
 };

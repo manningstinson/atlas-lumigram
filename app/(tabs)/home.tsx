@@ -1,45 +1,50 @@
-// app/(tabs)/home.tsx
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, Text, SafeAreaView, FlexAlignType } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
+import { Ionicons } from '@expo/vector-icons';
 import PostItem from '@/components/PostItem';
 import { placeholderPosts } from '@/utils/placeholder';
-import { Ionicons } from '@expo/vector-icons';
+import { layout, colors, typography } from '@/styles/theme';
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Home Feed</Text>
-        <Ionicons name="share-outline" size={24} color="#4fd1c5" />
+    <SafeAreaView style={layout.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Home Feed</Text>
+          <Ionicons 
+            name="share-outline" 
+            size={24} 
+            color={colors.accent} 
+          />
+        </View>
+        <FlashList
+          data={placeholderPosts}
+          renderItem={({ item }) => <PostItem post={item} />}
+          estimatedItemSize={400}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
-      
-      <FlashList
-        data={placeholderPosts}
-        renderItem={({ item }) => <PostItem post={item} />}
-        estimatedItemSize={400}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    alignItems: 'center' as FlexAlignType,
+    paddingHorizontal: layout.container.paddingHorizontal,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f1f1',
+    borderBottomColor: colors.lightGray,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...typography.heading,
+    color: colors.black,
   }
-});
+};

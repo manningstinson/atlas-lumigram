@@ -1,6 +1,5 @@
-// components/PostItem.tsx
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import ImageWithGestures from './ImageWithGestures';
 
 interface PostItemProps {
@@ -16,9 +15,9 @@ interface PostItemProps {
 export default function PostItem({ post }: PostItemProps) {
   return (
     <View style={styles.container}>
-      <ImageWithGestures 
-        source={{ uri: post.imageUrl }} 
-        caption={post.caption} 
+      <ImageWithGestures
+        source={{ uri: post.imageUrl }}
+        caption={post.caption}
       />
     </View>
   );
@@ -27,5 +26,7 @@ export default function PostItem({ post }: PostItemProps) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
+    backgroundColor: 'white',
+    borderRadius: 8,
   }
 });
