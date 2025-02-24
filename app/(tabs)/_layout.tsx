@@ -1,4 +1,3 @@
-// app/(tabs)/_layout.tsx
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,7 +44,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="my-profile/index"
+        name="my-profile"
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => (
