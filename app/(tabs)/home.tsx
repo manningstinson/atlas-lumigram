@@ -11,7 +11,7 @@ export default function HomeScreen() {
     <SafeAreaView style={layout.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Home Feed</Text>
+          <Text style={styles.headerTitle}>Home</Text>
           <Ionicons 
             name="share-outline" 
             size={24} 

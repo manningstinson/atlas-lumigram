@@ -17,7 +17,7 @@ import EditProfileModal from '../(modals)/edit-profile-modal';
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
-const itemSize = width / numColumns;
+const itemSize = (width - (spacing.m * 2 + 4)) / numColumns; // Adjusted size accounting for padding
 
 export default function MyProfileScreen() {
   const [isEditProfileModalVisible, setIsEditProfileModalVisible] = useState(false);
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     flex: 1,
+    paddingHorizontal: spacing.m, // Added horizontal padding to the grid container
   },
   gridContentContainer: {
     paddingHorizontal: 2,
