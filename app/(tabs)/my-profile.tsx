@@ -1,75 +1,99 @@
-import React from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Dimensions 
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  SafeAreaView,
+  FlexAlignType
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { profileFeed } from '@/utils/placeholder';
-import { layout, colors, typography } from '@/styles/theme';
+import { layout, colors, typography, spacing } from '@/styles/theme';
+import EditProfileModal from '../(modals)/edit-profile-modal';
 
 const { width } = Dimensions.get('window');
 const numColumns = 3;
 const itemSize = width / numColumns;
 
-export default function ProfileScreen() {
-  const navigation = useNavigation();
+export default function MyProfileScreen() {
+  const [isEditProfileModalVisible, setIsEditProfileModalVisible] = useState(false);
+  const [username, setUsername] = useState('manning-stinson');
+  const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState('https://placedog.net/400x400?id=1');
 
   const handleEditProfile = () => {
-    // Navigate to edit profile screen
-    // You'll need to create this screen and add navigation
-    // navigation.navigate('EditProfile');
-    console.log('Edit Profile Pressed');
+    setIsEditProfileModalVisible(true);
+  };
+
+  const handleCloseEditProfile = () => {
+    setIsEditProfileModalVisible(false);
+  };
+
+  const handleSaveProfile = (newUsername: string, newBio: string, newProfileImage?: string) => {
+    setUsername(newUsername);
+    setBio(newBio);
+    if (newProfileImage) {
+      setProfileImage(newProfileImage);
+    }
   };
 
   const renderPostGridItem = ({ item }: { item: any }) => (
-    <TouchableOpacity>
-      <Image 
-        source={{ uri: item.imageUrl }} 
-        style={styles.gridImage} 
-      />
-    </TouchableOpacity>
+    <Image
+      source={{ uri: item.imageUri || item.imageUrl }}
+      style={styles.gridImage}
+      resizeMode="cover"
+    />
   );
 
   return (
-    <View style={styles.container}>
-      {/* Export/Share Icon */}
-      <View style={styles.headerIcons}>
-        <TouchableOpacity>
+    <SafeAreaView style={layout.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>My Profile</Text>
           <Ionicons 
             name="share-outline" 
             size={24} 
-            color={colors.black} 
+            color={colors.accent} 
           />
-        </TouchableOpacity>
+        </View>
+
+        <FlatList
+          ListHeaderComponent={
+            <View style={styles.profileSection}>
+              <TouchableOpacity onPress={handleEditProfile}>
+                <Image
+                  source={{ uri: profileImage }}
+                  style={styles.profileImage}
+                />
+              </TouchableOpacity>
+              <Text style={styles.username}>{username}</Text>
+              {bio.length > 0 && <Text style={styles.bio}>{bio}</Text>}
+            </View>
+          }
+          data={profileFeed}
+          renderItem={renderPostGridItem}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+          style={styles.gridContainer}
+          contentContainerStyle={styles.gridContentContainer}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
 
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
-        <TouchableOpacity onPress={handleEditProfile}>
-          <Image 
-            source={{ uri: "https://placedog.net/400x400?id=1" }} 
-            style={styles.profileImage} 
-          />
-        </TouchableOpacity>
-        <Text style={styles.username}>manning-stinson</Text>
-      </View>
-
-      {/* Posts Grid */}
-      <FlatList
-        data={profileFeed}
-        renderItem={renderPostGridItem}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-        style={styles.gridContainer}
-        contentContainerStyle={styles.gridContentContainer}
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isVisible={isEditProfileModalVisible}
+        onClose={handleCloseEditProfile}
+        initialUsername={username}
+        initialBio={bio}
+        initialProfileImage={profileImage}
+        onSave={handleSaveProfile}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -78,25 +102,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
-  headerIcons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 15,
+  header: {
+    flexDirection: 'row' as 'row',
+    justifyContent: 'space-between' as 'space-between',
+    alignItems: 'center' as FlexAlignType,
+    paddingHorizontal: layout.container.paddingHorizontal,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lightGray,
+  },
+  headerTitle: {
+    ...typography.heading,
+    color: colors.black,
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginVertical: spacing.xl,
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 10,
+    marginBottom: spacing.m,
   },
   username: {
-    ...typography.body, // Changed from subheading to body
-    color: colors.black,
-    fontWeight: 'bold', // Added to make it more prominent
+    ...typography.heading,
+    fontSize: 20,
+    marginBottom: spacing.s,
+  },
+  bio: {
+    ...typography.body,
+    color: colors.mediumGray,
+    textAlign: 'center',
+    paddingHorizontal: spacing.m,
+    marginBottom: spacing.m,
   },
   gridContainer: {
     flex: 1,
@@ -108,5 +147,5 @@ const styles = StyleSheet.create({
     width: itemSize - 4,
     height: itemSize - 4,
     margin: 2,
-  }
+  },
 });

@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, layout, typography, spacing } from '@/styles/theme';
 
@@ -30,7 +29,7 @@ export default function EditProfileModal({
   onClose,
   initialUsername = '',
   initialBio = '',
-  initialProfileImage = 'https://via.placeholder.com/150',
+  initialProfileImage = 'https://placedog.net/400x400?id=1',
   onSave
 }: EditProfileModalProps) {
   const [username, setUsername] = useState(initialUsername);
@@ -85,52 +84,40 @@ export default function EditProfileModal({
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color={colors.black} />
-            </TouchableOpacity>
             <Text style={styles.headerTitle}>Edit Profile</Text>
-            <TouchableOpacity onPress={handleSave}>
-              <Text style={styles.saveButton}>Save</Text>
+            <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+              <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Profile Picture */}
-          <View style={styles.profileImageContainer}>
-            <TouchableOpacity onPress={handlePickImage}>
+          <View style={styles.content}>
+            {/* Profile Picture */}
+            <TouchableOpacity 
+              style={styles.profileImageContainer}
+              onPress={handlePickImage}
+            >
               <Image
                 source={{ uri: profileImage }}
                 style={styles.profileImage}
               />
-              <View style={styles.editPhotoOverlay}>
-                <Ionicons name="camera" size={24} color={colors.white} />
-              </View>
             </TouchableOpacity>
-          </View>
 
-          {/* Username Input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Username</Text>
+            {/* Username Input */}
             <TextInput
               style={styles.input}
               value={username}
               onChangeText={setUsername}
-              placeholder="Enter username"
+              placeholder="Username"
               placeholderTextColor={colors.mediumGray}
             />
-          </View>
 
-          {/* Bio Input */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Bio</Text>
-            <TextInput
-              style={[styles.input, styles.bioInput]}
-              value={bio}
-              onChangeText={setBio}
-              placeholder="Write a bio"
-              placeholderTextColor={colors.mediumGray}
-              multiline
-              numberOfLines={4}
-            />
+            {/* Save Profile Button - Moved higher up */}
+            <TouchableOpacity 
+              style={styles.saveProfileButton}
+              onPress={handleSave}
+            >
+              <Text style={styles.saveProfileButtonText}>Save profile</Text>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -155,48 +142,50 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.lightGray,
   },
   headerTitle: {
-    ...typography.heading,
     fontSize: 20,
+    fontWeight: 'bold',
   },
   saveButton: {
-    color: colors.accent,
-    ...typography.button,
-  },
-  profileImageContainer: {
-    alignItems: 'center',
-    marginVertical: spacing.xl,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-  },
-  editPhotoOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20,
     padding: spacing.s,
   },
-  inputContainer: {
+  saveButtonText: {
+    color: colors.accent,
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+    padding: spacing.m,
+    alignItems: 'center',
+  },
+  profileImageContainer: {
+    marginVertical: spacing.l,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+    borderRadius: layout.borderRadius,
     paddingHorizontal: spacing.m,
     marginBottom: spacing.l,
   },
-  label: {
-    ...typography.body,
-    marginBottom: spacing.s,
-    color: colors.black,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.inputBorder,
+  saveProfileButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: colors.accent,
     borderRadius: layout.borderRadius,
-    padding: spacing.m,
-    ...typography.body,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing.m, // Changed from 'auto' to spacing.m to position it just below the username
+    marginBottom: spacing.l,
   },
-  bioInput: {
-    height: 120,
-    textAlignVertical: 'top',
+  saveProfileButtonText: {
+    color: colors.white,
+    fontWeight: 'bold',
   },
 });
