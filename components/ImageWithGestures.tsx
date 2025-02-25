@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet, Alert } from 'react-native';
+import { View, Image, Text, StyleSheet, Dimensions } from 'react-native';
 import { 
   TapGestureHandler, 
   LongPressGestureHandler, 
   State 
 } from 'react-native-gesture-handler';
+import { colors } from '@/styles/theme';
 
 interface ImageWithGesturesProps {
   source: { uri: string };
@@ -52,12 +53,9 @@ const ImageWithGestures: React.FC<ImageWithGesturesProps> = ({
             style={styles.image}
             resizeMode="cover"
           />
-          {caption && !showCaptionOverlay && (
-            <Text style={styles.caption}>{caption}</Text>
-          )}
           {showCaptionOverlay && caption && (
             <View style={styles.captionOverlay}>
-              <Text style={styles.overlayText}>{caption}</Text>
+              <Text style={styles.captionText}>{caption}</Text>
             </View>
           )}
         </View>
@@ -78,22 +76,17 @@ const styles = StyleSheet.create({
     aspectRatio: 1, // This ensures the image is square
     borderRadius: 8,
   },
-  caption: {
-    marginTop: 8,
-    fontSize: 14,
-  },
   captionOverlay: {
     position: 'absolute',
-    top: 12,
+    bottom: 17, // Adjusted to account for container padding
     left: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 4,
   },
-  overlayText: {
-    color: 'white',
-    textAlign: 'center',
+  captionText: {
+    color: colors.black,
     fontSize: 14,
   }
 });
