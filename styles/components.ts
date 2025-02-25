@@ -14,7 +14,7 @@ export const tabNavigationStyles = {
     paddingTop: 5,
     paddingBottom: Platform.OS === 'ios' ? 30 : 30, // More padding at the bottom on iOS
     paddingHorizontal: 5,
-    position: 'absolute', // Position it absolutely
+    position: 'absolute' as 'absolute',
     bottom: Platform.OS === 'ios' ? 30 : 30, // Move it up from the bottom
     left: 0,
     right: 0,
