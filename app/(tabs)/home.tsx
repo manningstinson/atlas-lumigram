@@ -3,7 +3,7 @@ import { View, Text, SafeAreaView, FlexAlignType } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import PostItem from '@/components/PostItem';
-import { placeholderPosts } from '@/utils/placeholder';
+import { homeFeed } from '@/utils/placeholder';
 import { layout, colors, typography } from '@/styles/theme';
 
 export default function HomeScreen() {
@@ -19,7 +19,7 @@ export default function HomeScreen() {
           />
         </View>
         <FlashList
-          data={placeholderPosts}
+          data={homeFeed}
           renderItem={({ item }) => <PostItem post={item} />}
           estimatedItemSize={400}
           showsVerticalScrollIndicator={false}
