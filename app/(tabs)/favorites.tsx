@@ -32,7 +32,7 @@ export default function FavoritesScreen() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+  
   },
   header: {
     flexDirection: 'row' as 'row',

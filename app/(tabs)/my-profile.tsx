@@ -100,7 +100,6 @@ export default function MyProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
   },
   header: {
     flexDirection: 'row' as 'row',

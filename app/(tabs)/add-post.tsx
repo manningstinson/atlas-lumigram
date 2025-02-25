@@ -112,7 +112,6 @@ export default function AddPostScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f2f2f2',
   },
   container: {
     flex: 1,
@@ -123,7 +122,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.l,
     paddingVertical: spacing.m,
-    backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f1f1',
   },

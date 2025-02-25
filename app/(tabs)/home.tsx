@@ -32,7 +32,6 @@ export default function HomeScreen() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: colors.white,
   },
   header: {
     flexDirection: 'row' as 'row',

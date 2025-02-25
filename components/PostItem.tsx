@@ -41,7 +41,6 @@ export default function PostItem({ post }: PostItemProps) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
-    backgroundColor: 'white',
     borderRadius: 8,
   }
 });
