@@ -1,5 +1,5 @@
 // styles/components.ts
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { colors } from './theme';
 
 export const tabNavigationStyles = {
@@ -10,17 +10,31 @@ export const tabNavigationStyles = {
     backgroundColor: colors.white,
     borderTopWidth: 1,
     borderTopColor: '#f1f1f1',
-    height: 60,
+    height: 80,
+    paddingTop: 5,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 30, // More padding at the bottom on iOS
+    paddingHorizontal: 5,
+    position: 'absolute', // Position it absolutely
+    bottom: Platform.OS === 'ios' ? 30 : 30, // Move it up from the bottom
+    left: 0,
+    right: 0,
   },
+  tabBarLabelStyle: {
+    fontSize: 10,
+    marginBottom: 5,
+  },
+  tabBarIconStyle: {
+    marginTop: 5,
+  }
 };
 
 export const componentStyles = StyleSheet.create({
   // Component styles for the main app
   tabBarLabel: {
-    fontSize: 12,
-    marginBottom: 4,
+    fontSize: 10,
+    marginBottom: 2,
   },
   tabBarIcon: {
-    marginTop: 4,
+    marginTop: 0,
   }
 });

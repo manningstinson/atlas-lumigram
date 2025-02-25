@@ -8,7 +8,9 @@ import {
   TextInput, 
   TouchableOpacity, 
   Alert, 
-  ScrollView 
+  ScrollView,
+  SafeAreaView,
+  StatusBar 
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -58,55 +60,62 @@ export default function AddPostScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Add Post</Text>
-        <Ionicons name="share-outline" size={24} color={colors.accent} />
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Add Post</Text>
+          <Ionicons name="share-outline" size={24} color={colors.accent} />
+        </View>
 
-      <View style={styles.content}>
-        <TouchableOpacity 
-          style={styles.imageContainer} 
-          onPress={pickImage}
-        >
-          {image ? (
-            <Image 
-              source={{ uri: image }} 
-              style={styles.image} 
-              resizeMode="cover"
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.content}>
+            <TouchableOpacity 
+              style={styles.imageContainer} 
+              onPress={pickImage}
+            >
+              {image ? (
+                <Image 
+                  source={{ uri: image }} 
+                  style={styles.image} 
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.placeholderContainer}>
+                  <Ionicons name="add-circle-outline" size={40} color="#aaa" />
+                  <Text style={styles.placeholderText}>Tap to select an image</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.captionInput}
+              placeholder="Add a caption"
+              value={caption}
+              onChangeText={setCaption}
+              multiline
             />
-          ) : (
-            <View style={styles.placeholderContainer}>
-              <Ionicons name="add-circle-outline" size={40} color="#aaa" />
-              <Text style={styles.placeholderText}>Tap to select an image</Text>
-            </View>
-          )}
-        </TouchableOpacity>
 
-        <TextInput
-          style={styles.captionInput}
-          placeholder="Add a caption"
-          value={caption}
-          onChangeText={setCaption}
-          multiline
-        />
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.resetButton} onPress={resetForm}>
-          <Text style={styles.resetButtonText}>Reset</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.resetButton} onPress={resetForm}>
+              <Text style={styles.resetButtonText}>Reset</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#f2f2f2',
+  },
+  container: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -115,10 +124,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.l,
     paddingVertical: spacing.m,
     backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f1f1',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: colors.black,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: spacing.l,

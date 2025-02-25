@@ -35,8 +35,8 @@ const styles = {
     backgroundColor: colors.white,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'row' as 'row',
+    justifyContent: 'space-between' as 'space-between',
     alignItems: 'center' as FlexAlignType,
     paddingHorizontal: layout.container.paddingHorizontal,
     paddingVertical: 12,
