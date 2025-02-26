@@ -1,11 +1,12 @@
+// app/(tabs)/home.tsx
 import React from 'react';
-import { View, Text, SafeAreaView, FlexAlignType, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, FlexAlignType, TouchableOpacity, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import PostItem from '@/components/PostItem';
 import { homeFeed } from '@/utils/placeholder';
-import { layout, colors, typography } from '@/styles/theme';
+import { layout, colors, typography, spacing } from '@/styles/theme';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -32,20 +33,21 @@ export default function HomeScreen() {
           renderItem={({ item }) => <PostItem post={item} />}
           estimatedItemSize={400}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
         />
       </View>
     </SafeAreaView>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    flexDirection: 'row' as 'row',
-    justifyContent: 'space-between' as 'space-between',
-    alignItems: 'center' as FlexAlignType,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: layout.container.paddingHorizontal,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -54,5 +56,8 @@ const styles = {
   headerTitle: {
     ...typography.heading,
     color: colors.black,
+  },
+  listContent: {
+    paddingBottom: 80, // Add extra padding at the bottom for scrolling
   }
-};
+});
