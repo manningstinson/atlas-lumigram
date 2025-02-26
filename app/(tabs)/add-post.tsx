@@ -14,12 +14,18 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { colors, spacing, layout } from '@/styles/theme';
 import { componentStyles } from '@/styles/components';
 
 export default function AddPostScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const router = useRouter();
+
+  const handleLogout = () => {
+    router.replace('/login');
+  };
 
   const pickImage = async () => {
     // Request permissions
@@ -64,7 +70,9 @@ export default function AddPostScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Add Post</Text>
-          <Ionicons name="share-outline" size={24} color={colors.accent} />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color={colors.accent} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView}>

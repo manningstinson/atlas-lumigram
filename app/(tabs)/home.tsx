@@ -1,22 +1,31 @@
 import React from 'react';
-import { View, Text, SafeAreaView, FlexAlignType } from 'react-native';
+import { View, Text, SafeAreaView, FlexAlignType, TouchableOpacity } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import PostItem from '@/components/PostItem';
 import { homeFeed } from '@/utils/placeholder';
 import { layout, colors, typography } from '@/styles/theme';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  
+  const handleLogout = () => {
+    router.replace('/login');
+  };
+
   return (
     <SafeAreaView style={layout.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Home</Text>
-          <Ionicons 
-            name="share-outline" 
-            size={24} 
-            color={colors.accent} 
-          />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons
+              name="log-out-outline"
+              size={24}
+              color={colors.accent}
+            />
+          </TouchableOpacity>
         </View>
         <FlashList
           data={homeFeed}

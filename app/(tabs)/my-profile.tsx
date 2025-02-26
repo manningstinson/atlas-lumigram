@@ -10,6 +10,7 @@ import {
   FlexAlignType
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { FlatList } from 'react-native-gesture-handler';
 import { profileFeed } from '@/utils/placeholder';
 import { layout, colors, typography, spacing } from '@/styles/theme';
@@ -24,6 +25,11 @@ export default function MyProfileScreen() {
   const [username, setUsername] = useState('manning-stinson');
   const [bio, setBio] = useState('');
   const [profileImage, setProfileImage] = useState('https://placedog.net/400x400?id=1');
+  const router = useRouter();
+
+  const handleLogout = () => {
+    router.replace('/login');
+  };
 
   const handleEditProfile = () => {
     setIsEditProfileModalVisible(true);
@@ -54,11 +60,13 @@ export default function MyProfileScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>My Profile</Text>
-          <Ionicons 
-            name="share-outline" 
-            size={24} 
-            color={colors.accent} 
-          />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons 
+              name="log-out-outline" 
+              size={24} 
+              color={colors.accent} 
+            />
+          </TouchableOpacity>
         </View>
 
         <FlatList

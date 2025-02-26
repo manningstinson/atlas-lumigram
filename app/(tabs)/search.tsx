@@ -1,27 +1,33 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  FlatList, 
-  Image, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
   SafeAreaView,
-  FlexAlignType 
+  FlexAlignType
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { userSearch } from '@/utils/placeholder';
 import { layout, colors, typography, spacing } from '@/styles/theme';
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState(userSearch);
+  const router = useRouter();
 
+  const handleLogout = () => {
+    router.replace('/login');
+  };
+  
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text) {
-      const filtered = userSearch.filter(user => 
+      const filtered = userSearch.filter(user =>
         user.username.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredUsers(filtered);
@@ -32,9 +38,9 @@ export default function SearchScreen() {
 
   const renderUserItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.userItem}>
-      <Image 
-        source={{ uri: item.avatar }} 
-        style={styles.avatar} 
+      <Image
+        source={{ uri: item.avatar }}
+        style={styles.avatar}
       />
       <Text style={styles.username}>{item.username}</Text>
     </TouchableOpacity>
@@ -46,22 +52,22 @@ export default function SearchScreen() {
         {/* Header - Same layout as other pages */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Search</Text>
-          <Ionicons 
-            name="share-outline" 
-            size={24} 
-            color={colors.accent} 
-          />
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons
+              name="log-out-outline"
+              size={24}
+              color={colors.accent}
+            />
+          </TouchableOpacity>
         </View>
-
         {/* Search Input */}
-        <TextInput 
-          placeholder="Search users..." 
+        <TextInput
+          placeholder="Search users..."
           value={searchQuery}
           onChangeText={handleSearch}
           style={styles.searchInput}
           placeholderTextColor={colors.mediumGray}
         />
-
         {/* Search Results */}
         <FlatList
           data={filteredUsers}
