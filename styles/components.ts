@@ -12,10 +12,10 @@ export const tabNavigationStyles = {
     borderTopColor: '#f1f1f1',
     height: 80,
     paddingTop: 5,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 30, // More padding at the bottom on iOS
+    paddingBottom: Platform.OS === 'ios' ? 10 : 10, // More padding at the bottom on iOS
     paddingHorizontal: 5,
     position: 'absolute' as 'absolute',
-    bottom: Platform.OS === 'ios' ? 20 : 20, // Move it up from the bottom
+    bottom: Platform.OS === 'ios' ? 10 : 10, // Move it up from the bottom
     left: 0,
     right: 0,
   },
