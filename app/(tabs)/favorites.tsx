@@ -14,11 +14,11 @@ export default function FavoritesScreen() {
   const handleLogout = () => {
     router.replace('/login');
   };
-
+  
   return (
-    <SafeAreaView style={layout.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView style={[layout.safeArea, { backgroundColor: colors.appBackground }]}>
+      <View style={[styles.container, { backgroundColor: colors.appBackground }]}>
+        <View style={[styles.header, { backgroundColor: colors.appBackground }]}>
           <Text style={styles.headerTitle}>Favorites</Text>
           <TouchableOpacity onPress={handleLogout}>
             <Ionicons
@@ -33,7 +33,7 @@ export default function FavoritesScreen() {
           renderItem={({ item }) => <PostItem post={item} />}
           estimatedItemSize={400}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ ...styles.listContent, backgroundColor: colors.appBackground }}
         />
       </View>
     </SafeAreaView>
@@ -43,6 +43,7 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   header: {
     flexDirection: 'row',
@@ -52,6 +53,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    backgroundColor: colors.appBackground,
   },
   headerTitle: {
     ...typography.heading,
@@ -59,5 +61,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 80, // Add extra padding at the bottom for scrolling
+    backgroundColor: colors.appBackground,
   }
 });

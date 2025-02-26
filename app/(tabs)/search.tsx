@@ -23,7 +23,7 @@ export default function SearchScreen() {
   const handleLogout = () => {
     router.replace('/login');
   };
-  
+
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (text) {
@@ -47,10 +47,10 @@ export default function SearchScreen() {
   );
 
   return (
-    <SafeAreaView style={layout.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[layout.safeArea, { backgroundColor: colors.appBackground }]}>
+      <View style={[styles.container, { backgroundColor: colors.appBackground }]}>
         {/* Header - Same layout as other pages */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.appBackground }]}>
           <Text style={styles.headerTitle}>Search</Text>
           <TouchableOpacity onPress={handleLogout}>
             <Ionicons
@@ -73,7 +73,7 @@ export default function SearchScreen() {
           data={filteredUsers}
           renderItem={renderUserItem}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={[styles.listContainer, { backgroundColor: colors.appBackground }]}
           showsVerticalScrollIndicator={false}
         />
       </View>
@@ -84,6 +84,7 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   header: {
     flexDirection: 'row' as 'row',
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    backgroundColor: colors.appBackground,
   },
   headerTitle: {
     ...typography.heading,
@@ -105,9 +107,11 @@ const styles = StyleSheet.create({
     borderRadius: layout.borderRadius,
     padding: spacing.m,
     ...typography.body,
+    backgroundColor: colors.white,
   },
   listContainer: {
     paddingHorizontal: spacing.m,
+    backgroundColor: colors.appBackground,
   },
   userItem: {
     flexDirection: 'row',
@@ -115,6 +119,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    backgroundColor: colors.appBackground,
   },
   avatar: {
     width: 40,

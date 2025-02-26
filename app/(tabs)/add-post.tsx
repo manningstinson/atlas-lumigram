@@ -66,17 +66,20 @@ export default function AddPostScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.appBackground }]}>
+      <View style={[styles.container, { backgroundColor: colors.appBackground }]}>
+        <View style={[styles.header, { backgroundColor: colors.appBackground }]}>
           <Text style={styles.headerTitle}>Add Post</Text>
           <TouchableOpacity onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color={colors.accent} />
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.content}>
+        <ScrollView 
+          style={[styles.scrollView, { backgroundColor: colors.appBackground }]}
+          contentContainerStyle={{ backgroundColor: colors.appBackground }}
+        >
+          <View style={[styles.content, { backgroundColor: colors.appBackground }]}>
             <TouchableOpacity 
               style={styles.imageContainer} 
               onPress={pickImage}
@@ -120,9 +123,11 @@ export default function AddPostScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   container: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   header: {
     flexDirection: 'row',
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f1f1',
+    backgroundColor: colors.appBackground,
   },
   headerTitle: {
     fontSize: 28,
@@ -140,9 +146,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   content: {
     padding: spacing.l,
+    backgroundColor: colors.appBackground,
   },
   imageContainer: {
     width: '100%',
@@ -195,6 +203,7 @@ const styles = StyleSheet.create({
     padding: spacing.l,
     borderRadius: layout.borderRadius,
     alignItems: 'center',
+    backgroundColor: colors.appBackground,
   },
   resetButtonText: {
     color: colors.darkGray,

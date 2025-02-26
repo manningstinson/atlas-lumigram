@@ -56,9 +56,9 @@ export default function MyProfileScreen() {
   );
 
   return (
-    <SafeAreaView style={layout.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView style={[layout.safeArea, { backgroundColor: colors.appBackground }]}>
+      <View style={[styles.container, { backgroundColor: colors.appBackground }]}>
+        <View style={[styles.header, { backgroundColor: colors.appBackground }]}>
           <Text style={styles.headerTitle}>My Profile</Text>
           <TouchableOpacity onPress={handleLogout}>
             <Ionicons 
@@ -71,7 +71,7 @@ export default function MyProfileScreen() {
 
         <FlatList
           ListHeaderComponent={
-            <View style={styles.profileSection}>
+            <View style={[styles.profileSection, { backgroundColor: colors.appBackground }]}>
               <TouchableOpacity onPress={handleEditProfile}>
                 <Image
                   source={{ uri: profileImage }}
@@ -86,8 +86,8 @@ export default function MyProfileScreen() {
           renderItem={renderPostGridItem}
           keyExtractor={(item) => item.id}
           numColumns={numColumns}
-          style={styles.gridContainer}
-          contentContainerStyle={styles.gridContentContainer}
+          style={[styles.gridContainer, { backgroundColor: colors.appBackground }]}
+          contentContainerStyle={[styles.gridContentContainer, { backgroundColor: colors.appBackground }]}
           showsVerticalScrollIndicator={false}
         />
       </View>
@@ -108,6 +108,7 @@ export default function MyProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   header: {
     flexDirection: 'row' as 'row',
@@ -117,6 +118,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    backgroundColor: colors.appBackground,
   },
   headerTitle: {
     ...typography.heading,
@@ -125,6 +127,7 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',
     marginVertical: spacing.xl,
+    backgroundColor: colors.appBackground,
   },
   profileImage: {
     width: 100,
@@ -146,10 +149,12 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     flex: 1,
-    paddingHorizontal: spacing.m, // Added horizontal padding to the grid container
+    paddingHorizontal: spacing.m,
+    backgroundColor: colors.appBackground,
   },
   gridContentContainer: {
     paddingHorizontal: 2,
+    backgroundColor: colors.appBackground,
   },
   gridImage: {
     width: itemSize - 4,

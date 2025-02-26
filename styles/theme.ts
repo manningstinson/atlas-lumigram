@@ -6,6 +6,7 @@ export const colors = {
   authBackground: '#010326', // Dark navy blue
   authText: '#ffffff', // White text for auth screens
   accent: '#23D9A5', // Teal accent color
+  
   // General colors
   white: '#ffffff',
   black: '#000000',
@@ -14,6 +15,11 @@ export const colors = {
   mediumGray: '#999999',
   darkGray: '#555555',
   transparent: 'transparent',
+  
+  // App background colors - NEW
+  appBackground: '#ffffff', // Main app background - changed from gray to white
+  screenBackground: '#ffffff', // Screen background - changed from gray to white
+  
   // Functional colors
   inputBorder: 'rgba(79, 209, 197, 0.5)', // 50% transparent teal
   buttonBorder: 'rgba(255, 255, 255, 0.25)' // 25% transparent white
@@ -70,8 +76,8 @@ export const layout = {
   // Safe area and screen-related properties
   safeArea: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' 
-      ? StatusBar.currentHeight 
+    paddingTop: Platform.OS === 'android'
+      ? StatusBar.currentHeight
       : 0,
   },
   

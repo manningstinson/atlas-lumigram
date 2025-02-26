@@ -1,6 +1,6 @@
 // app/(tabs)/home.tsx
 import React from 'react';
-import { View, Text, SafeAreaView, FlexAlignType, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -14,10 +14,10 @@ export default function HomeScreen() {
   const handleLogout = () => {
     router.replace('/login');
   };
-
+  
   return (
-    <SafeAreaView style={layout.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[layout.safeArea, { backgroundColor: colors.appBackground }]}>
+      <View style={[styles.container, { backgroundColor: colors.appBackground }]}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Home</Text>
           <TouchableOpacity onPress={handleLogout}>
@@ -43,6 +43,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.appBackground,
   },
   header: {
     flexDirection: 'row',
@@ -52,6 +53,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
+    backgroundColor: colors.appBackground,
   },
   headerTitle: {
     ...typography.heading,
@@ -59,5 +61,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 80, // Add extra padding at the bottom for scrolling
+    backgroundColor: colors.appBackground,
   }
 });
