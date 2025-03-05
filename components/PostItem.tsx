@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { layout, colors, typography, spacing } from '@/styles/theme';
 import { Post, PostWithFavorite } from '../app/services/post.service';
@@ -13,7 +13,7 @@ interface PostItemProps {
 
 export default function PostItem({ post, onFavoriteToggle }: PostItemProps) {
   const [isFavorite, setIsFavorite] = useState('isFavorite' in post ? post.isFavorite : false);
-  const [isToggling, setIsToggling] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   
   // Format date (can be adjusted based on your needs)
   const formatDate = (timestamp: any) => {
@@ -23,25 +23,33 @@ export default function PostItem({ post, onFavoriteToggle }: PostItemProps) {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       return date.toLocaleDateString();
     } catch (error) {
+      console.error('Error formatting date:', error);
       return '';
     }
   };
   
   const handleFavoriteToggle = async () => {
-    if (isToggling || !post.id) return;
+    if (isTogglingFavorite || !post.id) return;
+    
+    setIsTogglingFavorite(true);
     
     try {
-      setIsToggling(true);
-      const newIsFavorite = await postService.toggleFavorite(post.id);
-      setIsFavorite(newIsFavorite);
+      const newFavoriteStatus = await postService.toggleFavorite(post.id);
+      setIsFavorite(newFavoriteStatus);
       
+      // Callback to parent component if provided
       if (onFavoriteToggle) {
-        onFavoriteToggle(post.id, newIsFavorite);
+        onFavoriteToggle(post.id, newFavoriteStatus);
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
+      // Optional: Show an error alert
+      Alert.alert('Error', 'Failed to update favorite status');
+      
+      // Revert UI state on error
+      setIsFavorite('isFavorite' in post ? post.isFavorite : false);
     } finally {
-      setIsToggling(false);
+      setIsTogglingFavorite(false);
     }
   };
   
@@ -66,17 +74,25 @@ export default function PostItem({ post, onFavoriteToggle }: PostItemProps) {
       />
       
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.favoriteButton} 
-          onPress={handleFavoriteToggle}
-          disabled={isToggling}
-        >
-          <Ionicons 
-            name={isFavorite ? "heart" : "heart-outline"} 
-            size={24} 
-            color={isFavorite ? colors.accent : colors.darkGray} 
+        {isTogglingFavorite ? (
+          <ActivityIndicator 
+            size="small" 
+            color={colors.accent} 
+            style={styles.favoriteButton} 
           />
-        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={styles.favoriteButton} 
+            onPress={handleFavoriteToggle}
+            disabled={isTogglingFavorite}
+          >
+            <Ionicons 
+              name={isFavorite ? "heart" : "heart-outline"} 
+              size={24} 
+              color={isFavorite ? colors.accent : colors.darkGray} 
+            />
+          </TouchableOpacity>
+        )}
         <Text style={styles.caption}>{post.caption}</Text>
       </View>
     </View>

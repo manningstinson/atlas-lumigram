@@ -1,5 +1,5 @@
 // app/(tabs)/add-post.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -16,10 +16,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { colors, spacing, layout } from '@/styles/theme';
-import { componentStyles } from '@/styles/components';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { app } from '../../firebaseConfig';
 import { useAuth } from '../contexts/auth.context';
+import { storageService } from '../services/storage.service';
 import { postService } from '../services/post.service';
 
 export default function AddPostScreen() {
@@ -28,7 +26,7 @@ export default function AddPostScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { logout } = useAuth();
-  const storage = getStorage(app);
+  const captionInputRef = useRef<TextInput>(null);
 
   const handleLogout = async () => {
     try {
@@ -41,24 +39,33 @@ export default function AddPostScreen() {
   };
 
   const pickImage = async () => {
-    // Request permissions
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please allow access to your photo library to select images.');
-      return;
-    }
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please allow access to your photo library to select images.');
+        return;
+      }
 
-    // Launch image picker
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+        // Focus the caption input after selecting an image
+        setTimeout(() => {
+          captionInputRef.current?.focus();
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
@@ -68,25 +75,22 @@ export default function AddPostScreen() {
       return;
     }
 
+    if (!caption.trim()) {
+      Alert.alert('Error', 'Please add a caption');
+      return;
+    }
+
     try {
       setIsLoading(true);
       
-      // 1. Upload image to Firebase Storage
-      const response = await fetch(image);
-      const blob = await response.blob();
+      // Generate a unique filename
+      const fileName = `post_${Date.now()}.jpg`;
       
-      // Create a unique filename using timestamp
-      const fileName = `post_${Date.now()}`;
-      const storageRef = ref(storage, `posts/${fileName}`);
+      // Upload image to Firebase Storage
+      const downloadURL = await storageService.uploadImage(image, fileName);
       
-      // Upload the file
-      await uploadBytes(storageRef, blob);
-      
-      // Get download URL
-      const downloadURL = await getDownloadURL(storageRef);
-      
-      // 2. Create post in Firestore
-      await postService.createPost(downloadURL, caption);
+      // Create post in Firestore
+      await postService.createPost(downloadURL, caption.trim());
       
       Alert.alert('Success', 'Your post has been created successfully!');
       resetForm();
@@ -142,18 +146,23 @@ export default function AddPostScreen() {
             </TouchableOpacity>
 
             <TextInput
+              ref={captionInputRef}
               style={styles.captionInput}
               placeholder="Add a caption"
               value={caption}
               onChangeText={setCaption}
               multiline
+              maxLength={2000}
               editable={!isLoading}
             />
 
             <TouchableOpacity 
-              style={[styles.saveButton, isLoading && { opacity: 0.7 }]} 
+              style={[
+                styles.saveButton, 
+                (isLoading || !image || !caption.trim()) && { opacity: 0.7 }
+              ]} 
               onPress={handleSave}
-              disabled={isLoading}
+              disabled={isLoading || !image || !caption.trim()}
             >
               {isLoading ? (
                 <ActivityIndicator color={colors.white} />

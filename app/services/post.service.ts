@@ -128,23 +128,23 @@ export const postService = {
     const currentUser = authService.getCurrentUser();
     if (!currentUser) throw new Error('User not authenticated');
     
-    const isFavorited = await postService.isPostFavorited(postId);
+    //const isFavorited = await postService.isPostFavorited(postId);
     
-    if (isFavorited) {
+   // if (isFavorited) {
       // Remove from favorites
-      const favQuery = query(
-        favoritesCollection,
-        where('postId', '==', postId),
-        where('userId', '==', currentUser.uid)
-      );
+      // const favQuery = query(
+      //   favoritesCollection,
+      //   where('postId', '==', postId),
+      //   where('userId', '==', currentUser.uid)
+      // );
       
-      const snapshot = await getDocs(favQuery);
-      snapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
-      });
+      // const snapshot = await getDocs(favQuery);
+      // snapshot.forEach(async (doc) => {
+      //   await deleteDoc(doc.ref);
+      // });
       
-      return false;
-    } else {
+      // return false;
+    //} else {
       // Add to favorites
       await addDoc(favoritesCollection, {
         postId,
@@ -153,7 +153,7 @@ export const postService = {
       });
       
       return true;
-    }
+    //}
   },
   
   // Get favorites for the current user
