@@ -166,15 +166,15 @@ export const postService = {
     if (lastVisible) {
       favQuery = query(
         favoritesCollection,
-        where('userId', '==', currentUser.uid),
+        //where('userId', '==', currentUser.uid),
         orderBy('createdAt', 'desc'),
-        startAfter(lastVisible),
+        //startAfter(lastVisible),
         limit(pageSize)
       );
     } else {
       favQuery = query(
         favoritesCollection,
-        where('userId', '==', currentUser.uid),
+        //where('userId', '==', currentUser.uid),
         orderBy('createdAt', 'desc'),
         limit(pageSize)
       );
