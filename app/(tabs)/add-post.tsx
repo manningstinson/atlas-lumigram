@@ -10,21 +10,34 @@ import {
   Alert, 
   ScrollView,
   SafeAreaView,
-  StatusBar 
+  ActivityIndicator
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { colors, spacing, layout } from '@/styles/theme';
 import { componentStyles } from '@/styles/components';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { app } from '../../firebaseConfig';
+import { useAuth } from '../contexts/auth.context';
+import { postService } from '../services/post.service';
 
 export default function AddPostScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { logout } = useAuth();
+  const storage = getStorage(app);
 
-  const handleLogout = () => {
-    router.replace('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // AuthProtection will handle redirect
+    } catch (error) {
+      console.error('Error logging out:', error);
+      Alert.alert('Error', 'Failed to log out. Please try again.');
+    }
   };
 
   const pickImage = async () => {
@@ -41,7 +54,7 @@ export default function AddPostScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.8,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -49,15 +62,44 @@ export default function AddPostScreen() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!image) {
       Alert.alert('No Image Selected', 'Please select an image to post.');
       return;
     }
 
-    // For now, just show an alert. In the future, this would save the post.
-    Alert.alert('Post Created', 'Your post has been created successfully!');
-    resetForm();
+    try {
+      setIsLoading(true);
+      
+      // 1. Upload image to Firebase Storage
+      const response = await fetch(image);
+      const blob = await response.blob();
+      
+      // Create a unique filename using timestamp
+      const fileName = `post_${Date.now()}`;
+      const storageRef = ref(storage, `posts/${fileName}`);
+      
+      // Upload the file
+      await uploadBytes(storageRef, blob);
+      
+      // Get download URL
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      // 2. Create post in Firestore
+      await postService.createPost(downloadURL, caption);
+      
+      Alert.alert('Success', 'Your post has been created successfully!');
+      resetForm();
+      
+      // Navigate to home
+      router.replace('/(tabs)/home');
+      
+    } catch (error) {
+      console.error('Error creating post:', error);
+      Alert.alert('Error', 'Failed to create post. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -83,6 +125,7 @@ export default function AddPostScreen() {
             <TouchableOpacity 
               style={styles.imageContainer} 
               onPress={pickImage}
+              disabled={isLoading}
             >
               {image ? (
                 <Image 
@@ -104,13 +147,26 @@ export default function AddPostScreen() {
               value={caption}
               onChangeText={setCaption}
               multiline
+              editable={!isLoading}
             />
 
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Save</Text>
+            <TouchableOpacity 
+              style={[styles.saveButton, isLoading && { opacity: 0.7 }]} 
+              onPress={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.saveButtonText}>Save</Text>
+              )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.resetButton} onPress={resetForm}>
+            <TouchableOpacity 
+              style={styles.resetButton} 
+              onPress={resetForm}
+              disabled={isLoading}
+            >
               <Text style={styles.resetButtonText}>Reset</Text>
             </TouchableOpacity>
           </View>
