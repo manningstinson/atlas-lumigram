@@ -13,7 +13,6 @@ import {
   ActivityIndicator
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -28,9 +27,8 @@ export default function AddPostScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const storage = getStorage(app);
 
   const handleLogout = async () => {
@@ -43,59 +41,6 @@ export default function AddPostScreen() {
     }
   };
 
-  // Image compression function
-  const compressImage = async (uri: string): Promise<string> => {
-    try {
-      // Get file info
-      const fileInfo = await FileSystem.getInfoAsync(uri, { size: true });
-      console.log(`Original file info:`, fileInfo);
-      
-      // Check if file exists and has size info
-      if (!fileInfo.exists) {
-        console.log('File does not exist');
-        return uri;
-      }
-      
-      // Access size property with type assertion
-      const fileSize = (fileInfo as any).size;
-      console.log(`Original file size: ${fileSize} bytes`);
-      
-      // If file size is less than 300KB, don't compress
-      if (!fileSize || fileSize < 300 * 1024) {
-        console.log('Image is already small enough');
-        return uri;
-      }
-      
-      // Calculate compression ratio based on file size
-      let compressionRatio = 0.7; // Default
-      if (fileSize > 1000 * 1024) {
-        compressionRatio = 0.3; // Higher compression for very large files
-      } else if (fileSize > 500 * 1024) {
-        compressionRatio = 0.5; // Medium compression for medium-sized files
-      }
-      
-      console.log(`Compressing image with ratio: ${compressionRatio}`);
-      
-      // Use ImageManipulator for compression
-      const result = await ImageManipulator.manipulateAsync(
-        uri,
-        [], // No resize operations
-        { compress: compressionRatio, format: ImageManipulator.SaveFormat.JPEG }
-      );
-      
-      // Check new file size
-      const compressedInfo = await FileSystem.getInfoAsync(result.uri, { size: true });
-      const compressedSize = (compressedInfo as any).size;
-      console.log(`Compressed file size: ${compressedSize} bytes`);
-      
-      return result.uri;
-    } catch (error) {
-      console.error('Error compressing image:', error);
-      // Return original if compression fails
-      return uri;
-    }
-  };
-
   const pickImage = async () => {
     // Request permissions
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -105,21 +50,30 @@ export default function AddPostScreen() {
       return;
     }
 
-    // Launch image picker with correct media type
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images", // lowercase "images" instead of "Images"
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
+    // Launch image picker
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5, // Reduced quality to minimize file size
+    });
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        setImage(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      // Compress and resize the image
+      try {
+        const manipulatedImage = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 800, height: 800 } }], // Resize to max 800x800
+          { 
+            compress: 0.5, // Further compress the image
+            format: ImageManipulator.SaveFormat.JPEG 
+          }
+        );
+        setImage(manipulatedImage.uri);
+      } catch (error) {
+        console.error('Image manipulation error:', error);
+        Alert.alert('Error', 'Failed to process image. Please try again.');
       }
-    } catch (error) {
-      console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to select image. Please try again.');
     }
   };
 
@@ -131,66 +85,83 @@ export default function AddPostScreen() {
 
     try {
       setIsLoading(true);
-      setUploadProgress(10);
-      
-      console.log('Starting upload process...');
-      
-      // Compress the image before uploading
-      console.log('Compressing image...');
-      const compressedImageUri = await compressImage(image);
-      setUploadProgress(30);
-      
-      // 1. Upload image to Firebase Storage
-      const response = await fetch(compressedImageUri);
-      const blob = await response.blob();
       
       // Create a unique filename using timestamp
-      const fileName = `post_${Date.now()}`;
+      const fileName = `post_${Date.now()}.jpg`;
       const storageRef = ref(storage, `posts/${fileName}`);
       
-      console.log('Uploading image to Firebase...');
-      // Upload the file
-      setUploadProgress(50);
-      await uploadBytes(storageRef, blob);
+      // Convert image to blob with error handling
+      const response = await fetch(image);
+      const blob = await response.blob();
       
-      console.log('Getting download URL...');
-      setUploadProgress(70);
-      // Get download URL
-      const downloadURL = await getDownloadURL(storageRef);
+      // Check blob size and show warning if too large
+      if (blob.size > 5 * 1024 * 1024) { // 5MB limit
+        Alert.alert('File Too Large', 'Please select a smaller image (max 5MB).');
+        setIsLoading(false);
+        return;
+      }
       
-      console.log('Creating post in Firestore...');
-      setUploadProgress(90);
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      // 2. Create post in Firestore with username derived from email
-      const username = user?.email?.split('@')[0] || 'anonymous';
-      await postService.createPost(downloadURL, caption);
-      
-      console.log('Post created successfully!');
-      setUploadProgress(100);
-      
-      // Reset form before showing alert
-      resetForm();
-      
-      // Show success message, then navigate
-      Alert.alert(
-        'Success', 
-        'Your post has been created successfully!',
-        [
-          { 
-            text: 'OK', 
-            onPress: () => {
-              console.log('Navigating to home...');
-              router.push('/(tabs)/home');
+      try {
+        // Upload the file
+        await uploadBytes(storageRef, blob);
+        
+        // Clear timeout
+        clearTimeout(timeoutId);
+        
+        // Get download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        
+        // Create post in Firestore
+        await postService.createPost(downloadURL, caption);
+        
+        // Reset form
+        resetForm();
+        
+        // Show success message and navigate
+        Alert.alert(
+          'Success', 
+          'Your post has been created successfully!',
+          [
+            { 
+              text: 'OK', 
+              onPress: () => {
+                router.push('/(tabs)/home');
+              }
             }
+          ]
+        );
+      } catch (uploadError) {
+        // Clear timeout in case of error
+        clearTimeout(timeoutId);
+        
+        // More specific error handling
+        if (uploadError instanceof Error) {
+          const errorMessage = uploadError.message.toLowerCase();
+          
+          if (errorMessage.includes('aborted')) {
+            Alert.alert('Timeout', 'Upload took too long. Please check your internet connection.');
+          } else if (errorMessage.includes('network')) {
+            Alert.alert('Network Error', 'Please check your internet connection.');
+          } else if (errorMessage.includes('storage/unauthorized')) {
+            Alert.alert('Permission Denied', 'You do not have permission to upload.');
+          } else {
+            Alert.alert('Error', 'Failed to create post. Please try again.');
           }
-        ]
-      );
+          
+          console.error('Upload error:', uploadError);
+        }
+        
+        throw uploadError; // Re-throw to be caught by outer catch block
+      }
     } catch (error) {
       console.error('Error creating post:', error);
       Alert.alert('Error', 'Failed to create post. Please try again.');
     } finally {
       setIsLoading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -251,7 +222,7 @@ export default function AddPostScreen() {
                 <View>
                   <ActivityIndicator color={colors.white} />
                   <Text style={[styles.saveButtonText, { marginTop: 5, fontSize: 14 }]}>
-                    {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Processing...'}
+                    Uploading...
                   </Text>
                 </View>
               ) : (
