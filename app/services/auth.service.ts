@@ -4,8 +4,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
-  onAuthStateChanged,
-  User
+  User,
+  onAuthStateChanged
 } from 'firebase/auth';
 import { app } from '../../firebaseConfig';
 

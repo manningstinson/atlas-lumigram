@@ -31,7 +31,7 @@ export interface Post {
   createdAt: Timestamp;
   createdBy: string;
   likes?: number;
-  username?: string;
+  username: string; // Required username
 }
 
 export interface PostWithFavorite extends Post {
@@ -44,12 +44,16 @@ export const postService = {
     const currentUser = authService.getCurrentUser();
     if (!currentUser) throw new Error('User not authenticated');
     
+    // Generate a username from email address
+    const username = currentUser.email?.split('@')[0] || 'anonymous';
+    
     const postData = {
       imageUrl,
       caption,
       createdAt: Timestamp.now(),
       createdBy: currentUser.uid,
-      likes: 0
+      likes: 0,
+      username: username // Always include username
     };
     
     const docRef = await addDoc(postsCollection, postData);
@@ -82,7 +86,12 @@ export const postService = {
     const posts: Post[] = [];
     
     snapshot.forEach((doc) => {
-      posts.push({ id: doc.id, ...doc.data() } as Post);
+      const data = doc.data();
+      posts.push({ 
+        id: doc.id, 
+        ...data,
+        username: data.username || 'Anonymous' // Ensure username is never undefined
+      } as Post);
     });
     
     // Check which posts are favorited by the current user
@@ -180,11 +189,13 @@ export const postService = {
     for (const favorite of favorites) {
       const postDoc = await getDoc(doc(postsCollection, favorite.postId));
       if (postDoc.exists()) {
+        const postData = postDoc.data();
         favoritePosts.push({ 
           id: postDoc.id, 
-          ...postDoc.data() as Post, 
+          ...postData, 
+          username: postData.username || 'Anonymous', // Ensure username is never undefined
           isFavorite: true 
-        });
+        } as PostWithFavorite);
       }
     }
     
