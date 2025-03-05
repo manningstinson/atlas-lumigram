@@ -172,7 +172,7 @@ export const postService = {
     }
     
     const snapshot = await getDocs(favQuery);
-    const favorites = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const favorites = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as { id: string; postId: string }));
     
     // Get the corresponding posts for each favorite
     const favoritePosts: PostWithFavorite[] = [];
