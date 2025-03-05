@@ -13,6 +13,8 @@ import {
   ActivityIndicator
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { colors, spacing, layout } from '@/styles/theme';
@@ -26,8 +28,9 @@ export default function AddPostScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const storage = getStorage(app);
 
   const handleLogout = async () => {
@@ -40,6 +43,59 @@ export default function AddPostScreen() {
     }
   };
 
+  // Image compression function
+  const compressImage = async (uri: string): Promise<string> => {
+    try {
+      // Get file info
+      const fileInfo = await FileSystem.getInfoAsync(uri, { size: true });
+      console.log(`Original file info:`, fileInfo);
+      
+      // Check if file exists and has size info
+      if (!fileInfo.exists) {
+        console.log('File does not exist');
+        return uri;
+      }
+      
+      // Access size property with type assertion
+      const fileSize = (fileInfo as any).size;
+      console.log(`Original file size: ${fileSize} bytes`);
+      
+      // If file size is less than 300KB, don't compress
+      if (!fileSize || fileSize < 300 * 1024) {
+        console.log('Image is already small enough');
+        return uri;
+      }
+      
+      // Calculate compression ratio based on file size
+      let compressionRatio = 0.7; // Default
+      if (fileSize > 1000 * 1024) {
+        compressionRatio = 0.3; // Higher compression for very large files
+      } else if (fileSize > 500 * 1024) {
+        compressionRatio = 0.5; // Medium compression for medium-sized files
+      }
+      
+      console.log(`Compressing image with ratio: ${compressionRatio}`);
+      
+      // Use ImageManipulator for compression
+      const result = await ImageManipulator.manipulateAsync(
+        uri,
+        [], // No resize operations
+        { compress: compressionRatio, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      
+      // Check new file size
+      const compressedInfo = await FileSystem.getInfoAsync(result.uri, { size: true });
+      const compressedSize = (compressedInfo as any).size;
+      console.log(`Compressed file size: ${compressedSize} bytes`);
+      
+      return result.uri;
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      // Return original if compression fails
+      return uri;
+    }
+  };
+
   const pickImage = async () => {
     // Request permissions
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -49,16 +105,21 @@ export default function AddPostScreen() {
       return;
     }
 
-    // Launch image picker
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    // Launch image picker with correct media type
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images", // lowercase "images" instead of "Images"
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
     }
   };
 
@@ -70,35 +131,66 @@ export default function AddPostScreen() {
 
     try {
       setIsLoading(true);
+      setUploadProgress(10);
+      
+      console.log('Starting upload process...');
+      
+      // Compress the image before uploading
+      console.log('Compressing image...');
+      const compressedImageUri = await compressImage(image);
+      setUploadProgress(30);
       
       // 1. Upload image to Firebase Storage
-      const response = await fetch(image);
+      const response = await fetch(compressedImageUri);
       const blob = await response.blob();
       
       // Create a unique filename using timestamp
       const fileName = `post_${Date.now()}`;
       const storageRef = ref(storage, `posts/${fileName}`);
       
+      console.log('Uploading image to Firebase...');
       // Upload the file
+      setUploadProgress(50);
       await uploadBytes(storageRef, blob);
       
+      console.log('Getting download URL...');
+      setUploadProgress(70);
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       
-      // 2. Create post in Firestore
+      console.log('Creating post in Firestore...');
+      setUploadProgress(90);
+      
+      // 2. Create post in Firestore with username derived from email
+      const username = user?.email?.split('@')[0] || 'anonymous';
       await postService.createPost(downloadURL, caption);
       
-      Alert.alert('Success', 'Your post has been created successfully!');
+      console.log('Post created successfully!');
+      setUploadProgress(100);
+      
+      // Reset form before showing alert
       resetForm();
       
-      // Navigate to home
-      router.replace('/(tabs)/home');
-      
+      // Show success message, then navigate
+      Alert.alert(
+        'Success', 
+        'Your post has been created successfully!',
+        [
+          { 
+            text: 'OK', 
+            onPress: () => {
+              console.log('Navigating to home...');
+              router.push('/(tabs)/home');
+            }
+          }
+        ]
+      );
     } catch (error) {
       console.error('Error creating post:', error);
       Alert.alert('Error', 'Failed to create post. Please try again.');
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -156,7 +248,12 @@ export default function AddPostScreen() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <ActivityIndicator color={colors.white} />
+                <View>
+                  <ActivityIndicator color={colors.white} />
+                  <Text style={[styles.saveButtonText, { marginTop: 5, fontSize: 14 }]}>
+                    {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Processing...'}
+                  </Text>
+                </View>
               ) : (
                 <Text style={styles.saveButtonText}>Save</Text>
               )}

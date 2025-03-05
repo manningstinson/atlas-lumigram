@@ -37,7 +37,9 @@ export default function FavoritesScreen() {
     try {
       refresh ? setIsRefreshing(true) : setIsLoading(true);
       
+      console.log("Fetching favorites...");
       const result = await postService.getFavorites(refresh ? undefined : lastVisible, PAGE_SIZE);
+      console.log(`Fetched ${result.posts.length} favorite posts`);
       
       if (refresh) {
         setFavoritePosts(result.posts);
@@ -76,6 +78,7 @@ export default function FavoritesScreen() {
   // Handle favorite toggle - remove from list when unfavorited
   const handleFavoriteToggle = (postId: string, isFavorite: boolean) => {
     if (!isFavorite) {
+      console.log(`Removing post ${postId} from favorites list`);
       // If unfavorited, remove from the list
       setFavoritePosts(prev => prev.filter(post => post.id !== postId));
     }
@@ -124,7 +127,10 @@ export default function FavoritesScreen() {
         <FlashList
           data={favoritePosts}
           renderItem={({ item }) => (
-            <PostItem post={item} onFavoriteToggle={handleFavoriteToggle} />
+            <PostItem 
+              post={item} // Use the item directly since it's already a PostWithFavorite
+              onFavoriteToggle={handleFavoriteToggle}
+            />
           )}
           estimatedItemSize={400}
           showsVerticalScrollIndicator={false}
